@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MCP Servers, What They Are and Why They Solve a Problem That Does Not Exist</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reset.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/monokai.css" />
+  <style>
+    :root {
+      --accent: #27786f;
+      --accent2: #315f78;
+      --ink: #17222a;
+      --muted: #68727a;
+      --line: #d9dfdf;
+      --wash: #f7f9f8;
+    }
+
+    .reveal {
+      font-size: 28px;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      text-transform: none;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .reveal h1 { font-size: 1.6em; }
+    .reveal h2 { font-size: 1.2em; color: var(--ink); letter-spacing: -0.02em; }
+    .reveal h2::after {
+      content: "";
+      display: block;
+      width: 2.2em;
+      height: 3px;
+      margin: 0.38em auto 0;
+      background: var(--accent);
+    }
+    .reveal h3 { font-size: 1.0em; color: var(--accent2); }
+
+    .reveal p, .reveal li { font-size: 0.72em; line-height: 1.5; color: var(--ink); }
+
+    .reveal section.title-slide h1 { font-size: 1.8em; color: var(--ink); }
+    .reveal section.title-slide p  { color: var(--muted); font-size: 0.75em; }
+
+    .cols { display: flex; gap: 2em; align-items: flex-start; }
+    .cols > * { flex: 1; }
+
+    .box {
+      background: #fbfcfc;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 0.55em 0.9em;
+      margin: 0.45em 0;
+    }
+
+    .box.red    { border-color: #aeb9bd; background: #f7f9f9; }
+    .box.blue   { border-color: #9bb3bf; background: #f5f8fa; }
+    .box.green  { border-color: #95b8b2; background: #f4f8f7; }
+    .box.yellow { border-color: #c7bda9; background: #faf8f4; }
+
+    .tag {
+      display: inline-block;
+      padding: 0.15em 0.6em;
+      border-radius: 999px;
+      font-size: 0.7em;
+      font-weight: 600;
+      margin-right: 0.3em;
+      vertical-align: middle;
+    }
+    .tag.red    { background: #455a64; color: white; }
+    .tag.green  { background: var(--accent); color: white; }
+    .tag.blue   { background: var(--accent2); color: white; }
+
+    .diagram {
+      font-family: monospace;
+      font-size: 0.62em;
+      text-align: left;
+      background: var(--wash);
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 0.8em 1.2em;
+      line-height: 1.7;
+      white-space: pre;
+      color: var(--ink);
+    }
+
+    .highlight-red   { color: var(--accent); font-weight: bold; }
+    .highlight-green { color: #1e8449; font-weight: bold; }
+    .highlight-blue  { color: var(--accent2); font-weight: bold; }
+    .highlight-yellow{ color: #b7770d; font-weight: bold; }
+
+    table.compare {
+      width: 100%;
+      font-size: 0.72em;
+      border-collapse: collapse;
+    }
+    table.compare th {
+      background: #eef2f1;
+      padding: 0.4em 0.7em;
+      text-align: left;
+      color: var(--ink);
+    }
+    table.compare td {
+      padding: 0.38em 0.7em;
+      border-bottom: 1px solid #ddd;
+      vertical-align: top;
+      color: var(--ink);
+    }
+    table.compare tr:nth-child(even) td {
+      background: #fafbfb;
+    }
+
+    .verdict {
+      font-size: 1.1em;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 0.5em;
+    }
+
+    .small { font-size: 0.62em; color: var(--muted); }
+    .reveal .source { font-size: 0.48em !important; color: #777; margin-top: 0.8em; }
+    .source a { color: #2471a3; }
+    .reveal .disclaimer-block {
+      width: 70%;
+      max-width: 760px;
+      margin: 2em auto 0 !important;
+      padding-top: 0.8em;
+      border-top: 1px solid var(--line);
+    }
+    .reveal .disclaimer {
+      margin: 0 !important;
+      text-align: center;
+      font-size: 0.48em !important;
+      line-height: 1.45 !important;
+      color: var(--muted) !important;
+    }
+    .reveal .byline {
+      width: 100%;
+      margin: 0.8em 0 0 !important;
+      text-align: right;
+      font-size: 0.5em !important;
+      color: var(--muted) !important;
+    }
+
+    ul.tight li { margin-bottom: 0.3em; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ─── 1. TITLE ─────────────────────────────────────────────────────────── -->
+<section class="title-slide" data-background="white">
+  <h1>MCP Servers</h1>
+  <h3 style="color:var(--accent); margin-top:0.2em;">What They Are, How They Work,<br>and Why They Solve a Problem AI Agents Do Not Have</h3>
+  <div class="disclaimer-block">
+    <p class="disclaimer"><strong>Disclaimer:</strong> The views and opinions expressed in this presentation are my own and do not represent those of my team or my current client.</p>
+    <p class="byline">Presentation by <strong>Naïm LARIF</strong></p>
+  </div>
+</section>
+
+<section>
+  <h2>What You’ll Leave With</h2>
+  <div class="cols">
+    <div>
+      <div class="box blue">
+        <strong>What MCP actually is</strong>
+        <p>Its purpose, primitives, and limits.</p>
+      </div>
+      <div class="box blue">
+        <strong>MCP from a network standpoint</strong>
+        <p>Host, client, server, JSON-RPC, stdio, and Streamable HTTP.</p>
+      </div>
+    </div>
+    <div>
+      <div class="box red">
+        <strong>The arguments for MCP, and why most are wrong</strong>
+        <p>Where popular claims confuse interoperability with intelligence, access, or security.</p>
+      </div>
+      <div class="box red">
+        <strong>Why we will still use MCP</strong>
+        <p>Because MCP can be technically unnecessary and still make sense in practice.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>MCP in One Slide</h2>
+  <p><strong>Model Context Protocol</strong> is an open protocol for connecting AI hosts to tools, context, and data.</p>
+  <div class="cols" style="margin-top:0.8em;">
+    <div class="box green">
+      <strong>What servers expose</strong>
+      <ul class="tight">
+        <li><strong>Tools</strong>, functions the model can call</li>
+        <li><strong>Resources</strong>, readable context</li>
+        <li><strong>Prompts</strong>, reusable templates</li>
+      </ul>
+    </div>
+    <div class="box yellow">
+      <strong>What the protocol adds</strong>
+      <ul class="tight">
+        <li>Finding available tools while the app runs</li>
+        <li>JSON Schema arguments</li>
+        <li>Shared start-up and message rules</li>
+      </ul>
+    </div>
+  </div>
+  <p class="verdict">A useful integration system, not an intelligence layer.</p>
+</section>
+
+<section>
+  <h2>The Protocol on the Wire</h2>
+  <div class="cols">
+    <div class="box green">
+      <strong>stdio, local</strong>
+      <p>The host creates an MCP client, which starts the local server and exchanges one JSON-RPC message per line through stdin and stdout.</p>
+    </div>
+    <div class="box blue">
+      <strong>Streamable HTTP, remote</strong>
+      <p>The host’s MCP client POSTs JSON-RPC to one endpoint. Responses may be JSON or an SSE stream.</p>
+    </div>
+  </div>
+  <div class="diagram" style="margin-top:0.8em;"><span class="highlight-blue">AI host</span>  →  <span class="highlight-blue">MCP client</span>  initialize  →  <span class="highlight-green">MCP server</span>
+<span class="highlight-blue">AI host</span>  →  <span class="highlight-blue">MCP client</span>  tools/list  →  <span class="highlight-green">MCP server</span>
+<span class="highlight-blue">AI host</span>  →  <span class="highlight-blue">MCP client</span>  tools/call  →  <span class="highlight-green">MCP server</span>  →  <span class="highlight-yellow">real API</span>
+<span class="highlight-blue">AI host</span>  ←  <span class="highlight-blue">MCP client</span>  ←  result  ←  <span class="highlight-green">MCP server</span></div>
+  <p class="source">Source: <a href="https://modelcontextprotocol.io/specification/2025-11-25/basic/transports">MCP transport specification, 2025-11-25</a></p>
+</section>
+
+<section>
+  <h2>MCP Standardizes Only the Middle of the Call</h2>
+  <p>User request: <em>“Open a GitHub issue for the auth bug.”</em></p>
+  <div class="diagram"><span class="highlight-blue">[1] LLM</span> chooses create_github_issue and generates arguments
+   ↓
+<span class="highlight-blue">[2] MCP client</span> sends tools/call
+   ↓
+<span class="highlight-green">[3] MCP server</span> validates arguments and calls GitHub
+   ↓
+<span class="highlight-yellow">[4] GitHub API</span> validates the token and creates the issue
+   ↓
+<span class="highlight-green">[3] MCP server</span> returns an MCP result
+   ↓
+<span class="highlight-blue">[2] Host</span> injects the result into model context
+   ↓
+<span class="highlight-blue">[1] LLM</span> answers the user</div>
+  <p class="verdict">In simple terms, MCP is a standard wrapper around the real integration.</p>
+</section>
+
+<section>
+  <h2>MCP Does Not Make an Agent</h2>
+  <p>Now that we know what MCP does, we can separate it from what the hype claims it does.</p>
+  <div class="diagram"><span class="highlight-blue">Observe</span>  →  <span class="highlight-blue">Reason / plan</span>  →  <span class="highlight-yellow">Choose an action</span>
+   ▲                                      │
+   │                                      ▼
+<span class="highlight-green">Evaluate the result</span>  ←  <span class="highlight-green">Execute through any interface</span>
+
+                    direct function · SDK · REST · shell · <span class="highlight-red">MCP</span></div>
+  <div class="box red" style="margin-top:0.8em;">
+    <strong>An agent needs a way to perform actions. MCP is only one possible way to connect those actions.</strong>
+  </div>
+</section>
+
+<section>
+  <h2>A Fixed Application Calling a Known API Does Not Need MCP</h2>
+  <div class="cols">
+    <div class="box blue">
+      <strong>The model side already exists</strong>
+      <p>Structured tool calling gives the model a clear tool interface with JSON Schema arguments.</p>
+    </div>
+    <div class="box green">
+      <strong>The integration side already exists</strong>
+      <p>SDKs, generated OpenAPI clients and ordinary backend functions can execute the call safely.</p>
+    </div>
+  </div>
+  <div class="box yellow" style="margin-top:0.8em;">
+    <strong>What the model remembers from training is not a reliable live specification.</strong> But a function schema or generated client already provides one, without requiring MCP.
+  </div>
+</section>
+
+<section>
+  <h2>The Discovery Argument</h2>
+  <p>MCP lets hosts find available tools while the application is running. That is real, but its value depends on the application.</p>
+  <div class="cols">
+    <div class="box green">
+      <strong>Genuinely useful</strong>
+      <ul class="tight">
+        <li>Plugin systems that change over time</li>
+        <li>Internal company tools</li>
+        <li>Tools that change while the app runs</li>
+      </ul>
+    </div>
+    <div class="box red">
+      <strong>Usually extra work</strong>
+      <ul class="tight">
+        <li>A fixed application already knows its tools</li>
+        <li>A fixed tool list adds no new function</li>
+        <li>OpenAPI is richer for APIs you own</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The Real Authorization Stack</h2>
+  <div class="diagram"><span class="highlight-blue">User / client</span>
+   ↓  OAuth 2.0 · OIDC · API key · mTLS
+<span class="highlight-green">Identity provider</span>
+   ↓  access token with limited permissions
+<span class="highlight-yellow">API gateway / backend</span>
+   ↓  validates token · checks permissions · limits request rates
+<span class="highlight-green">Real API</span></div>
+  <p class="verdict">MCP may add another authorization step for clients. The API identity and policy system is still needed.</p>
+</section>
+
+<section>
+  <h2>MCP Secures the Wrapper, Not the Action</h2>
+  <div class="cols">
+    <div class="box blue">
+      <strong>What MCP auth can do</strong>
+      <p>Authorize an MCP client to access a remote MCP server for a user.</p>
+    </div>
+    <div class="box red">
+      <strong>What remains yours</strong>
+      <p>API credentials, user rights, business rules, approvals, minimum permissions and audit logs.</p>
+    </div>
+  </div>
+  <div class="box yellow" style="margin-top:0.8em;">
+    Keeping credentials away from the LLM is basic server-side design. A Lambda, Cloud Run service or ordinary backend can do the same.
+  </div>
+  <p class="source">Source: <a href="https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization">MCP authorization specification, 2025-11-25</a></p>
+</section>
+
+<section>
+  <h2>The Extra Complexity MCP Can Add</h2>
+  <div class="cols">
+    <div>
+      <div class="box red"><strong>Another connection layer</strong><p>Remote deployments can add delay and another place where calls can fail.</p></div>
+      <div class="box red"><strong>Another service</strong><p>Deploy, monitor, scale, patch and debug it.</p></div>
+    </div>
+    <div>
+      <div class="box red"><strong>Harder end-to-end tracing</strong><p>Observability now crosses another process or service.</p></div>
+      <div class="box red"><strong>Duplicated definitions</strong><p>API definitions and MCP tools can become inconsistent.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Where MCP Actually Helps</h2>
+  <div class="box green">
+    <strong>Internal and proprietary systems</strong>
+    <p>Proprietary databases, older services and custom APIs benefit from a common interface for tools and context.</p>
+  </div>
+  <div class="box green">
+    <strong>Local developer-tool integrations</strong>
+    <p>stdio is convenient for IDEs and desktop hosts.</p>
+  </div>
+  <div class="box yellow">
+    <strong>One integration, multiple hosts</strong>
+    <p>When hosts and servers follow the same protocol version, one common interface can reduce the number of custom integrations.</p>
+  </div>
+</section>
+
+<section>
+  <h2>The Hype Distracts From Harder Agent Problems</h2>
+  <div class="box blue" style="text-align:left; padding:0.8em 1.2em;">
+    <strong>Reliable agents need strong execution rules, not another integration standard.</strong>
+    <div class="diagram" style="margin-top:0.7em;">unsafe tool results     →  <span class="highlight-blue">protection against prompt injection</span>
+permissions per task   →  <span class="highlight-green">short-lived credentials · limited access</span>
+model mistakes         →  <span class="highlight-yellow">clear tool definitions · structured outputs · tests</span>
+failures across systems →  safe retries · observability · stop repeated failures</div>
+  </div>
+  <p class="verdict">These are the hard parts of agentic AI. MCP solves none of them.</p>
+</section>
+
+<section>
+  <h2>Why a Thin Protocol Produced Thick Hype</h2>
+  <div class="cols">
+    <div>
+      <div class="box blue"><strong>The USB comparison is easy to understand</strong><p>“Build once, connect everywhere” is a very convincing story.</p></div>
+      <div class="box blue"><strong>Demos look intelligent</strong><p>Connecting GitHub or a database feels like a new model feature.</p></div>
+    </div>
+    <div>
+      <div class="box yellow"><strong>Platforms want ecosystems</strong><p>Hosts gain integrations and vendors reach more users.</p></div>
+      <div class="box red"><strong>Adoption makes a standard useful</strong><p>A standard gains value even when it was not technically required.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>The Honest Verdict</h2>
+  <table class="compare">
+    <thead><tr><th>Popular claim</th><th>Reality</th></tr></thead>
+    <tbody>
+      <tr><td>“Agents require MCP tools.”</td><td><span class="tag red">False</span> Functions, SDKs and HTTP clients already work.</td></tr>
+      <tr><td>“MCP solves authorization.”</td><td><span class="tag red">False</span> It secures one connection; API policy remains yours.</td></tr>
+      <tr><td>“MCP standardises integrations.”</td><td><span class="tag green">True</span> Valuable when several hosts consume the same integration.</td></tr>
+    </tbody>
+  </table>
+  <p class="verdict">A useful interoperability standard, not a requirement for agentic AI.</p>
+</section>
+
+<section>
+  <h2>Why We Will Still Use MCP</h2>
+  <div class="box blue">
+    <strong>Because the ecosystem is becoming the main value.</strong>
+    <p>ChatGPT, Claude, Gemini, VS Code and Cursor support MCP, while vendors increasingly publish compatible servers.</p>
+  </div>
+  <div class="cols" style="margin-top:0.8em;">
+    <div class="box green"><strong>Practical benefit</strong><p>Reuse existing integrations and avoid host-specific code.</p></div>
+    <div class="box yellow"><strong>Practical warning</strong><p>Use it as a common integration layer, not as the foundation of agent intelligence.</p></div>
+  </div>
+  <p class="verdict">Not technically required. Hard to ignore because many products support it.</p>
+  <p class="source">Adoption examples: <a href="https://www.anthropic.com/news/donating-the-model-context-protocol-and-establishing-of-the-agentic-ai-foundation">Anthropic, Agentic AI Foundation announcement</a></p>
+</section>
+
+<section data-background="white">
+  <h2>Key Takeaways</h2>
+  <ul style="font-size:0.82em; line-height:1.9;">
+    <li>MCP is JSON-RPC over stdio or Streamable HTTP, using standard technologies.</li>
+    <li>It standardises integration; it does not create agentic behaviour.</li>
+    <li>Its strongest benefits are finding tools, reusing them across applications and using existing integrations.</li>
+    <li>It does not replace API design, IAM, approvals or security engineering.</li>
+    <li>We will use it because it becomes more useful as more products support it, not because agents require it.</li>
+  </ul>
+  <p class="verdict">Use MCP when it helps, not by default.</p>
+  <p class="small">Questions?</p>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    slideNumber: 'c/t',
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    backgroundTransition: 'fade',
+    controls: true,
+    progress: true,
+    center: true,
+    width: 1100,
+    height: 700,
+    plugins: [ RevealHighlight, RevealNotes ]
+  });
+</script>
+</body>
+</html>
