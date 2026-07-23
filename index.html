@@ -45,6 +45,13 @@
 
     .reveal section.title-slide h1 { font-size: 1.8em; color: var(--ink); }
     .reveal section.title-slide p  { color: var(--muted); font-size: 0.75em; }
+    .reveal .title-image {
+      display: block;
+      width: 68%;
+      max-height: 220px;
+      object-fit: contain;
+      margin: 0.65em auto 0;
+    }
 
     .cols { display: flex; gap: 2em; align-items: flex-start; }
     .cols > * { flex: 1; }
@@ -157,6 +164,7 @@
 <section class="title-slide" data-background="white">
   <h1>MCP Servers</h1>
   <h3 style="color:var(--accent); margin-top:0.2em;">What They Are, How They Work,<br>and Why They Solve a Problem AI Agents Do Not Have</h3>
+  <img class="title-image" src="MCP0.png" alt="Examples of MCP hype across videos, courses, public-sector articles and server directories" />
   <div class="disclaimer-block">
     <p class="disclaimer"><strong>Disclaimer:</strong> The views and opinions expressed in this presentation are my own and do not represent those of my team or my current client.</p>
     <p class="byline">Presentation by <strong>Naïm LARIF</strong></p>
