@@ -242,14 +242,14 @@
 
 <section>
   <h2>MCP Standardizes Only the Middle of the Call</h2>
-  <p>User request: <em>“Open a GitHub issue for the auth bug.”</em></p>
-  <div class="diagram"><span class="highlight-blue">[1] LLM</span> chooses create_github_issue and generates arguments
+  <p>User request: <em>“Add this product to my cart.”</em></p>
+  <div class="diagram"><span class="highlight-blue">[1] LLM</span> chooses add_to_cart and generates arguments
    ↓
 <span class="highlight-blue">[2] MCP client</span> sends tools/call
    ↓
-<span class="highlight-green">[3] MCP server</span> validates arguments and calls GitHub
+<span class="highlight-green">[3] MCP server</span> validates arguments and calls the commerce API
    ↓
-<span class="highlight-yellow">[4] GitHub API</span> validates the token and creates the issue
+<span class="highlight-yellow">[4] Commerce API</span> validates the session and updates the cart
    ↓
 <span class="highlight-green">[3] MCP server</span> returns an MCP result
    ↓
